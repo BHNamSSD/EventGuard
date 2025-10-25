@@ -1,6 +1,8 @@
 #ifndef EVENTGUARD_H
 #define EVENTGUARD_H
 
+
+#define VERSION 1.01
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -17,7 +19,11 @@ public:
     EventGuard(QWidget *parent = nullptr);
     ~EventGuard();
 
+
+
+
 private:
     Ui::EventGuard *ui;
+    QString setVersion(double);
 };
 #endif // EVENTGUARD_H
