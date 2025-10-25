@@ -29,8 +29,8 @@
    <string>EventGuard</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>C:/Users/phamh/OneDrive/Pictures/Saved Pictures/bhnam_.ico</normaloff>C:/Users/phamh/OneDrive/Pictures/Saved Pictures/bhnam_.ico</iconset>
+   <iconset resource="ico.qrc">
+    <normaloff>:/icons/icons/bhnam.ico</normaloff>:/icons/icons/bhnam.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="minimumSize">
@@ -145,7 +145,7 @@
      <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QListView" name="listView">
+   <widget class="QListView" name="listView_logSystem">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -155,7 +155,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="exitApp">
+   <widget class="QPushButton" name="pushButton_exitApp">
     <property name="geometry">
      <rect>
       <x>560</x>
@@ -181,6 +181,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="ico.qrc"/>
+ </resources>
  <connections/>
 </ui>
