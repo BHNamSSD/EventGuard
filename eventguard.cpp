@@ -9,13 +9,20 @@ EventGuard::EventGuard(QWidget *parent)
     connect_slot();
     modelLog = new QStringListModel(this);
 
+    //Call function setLogPathApp
+    setLogPathApp();
 
 
     connectLink("https://github.com/BHNamSSD/EventGuard");
     //ui->listView_logSystem->setModel(logModel);
-    writeLog("Ứng dụng khởi động thành công.");
+    writeLog("Info","System","Ứng dụng khởi động thành công.");
     this->setWindowTitle(setVersion(VERSION));
 }
+
+// void EventGuard::setTabWidget_system()
+// {
+//     ui->tabWidget_systen->setTabText(0,"Overview");
+// }
 
 EventGuard::~EventGuard()
 {
@@ -52,20 +59,46 @@ QString EventGuard::setVersion(double version)
 //function restart
 void EventGuard::restart()
 {
-    writeLog("call restart");
+    writeLog("Info","App","Call restart");
+}
+
+void EventGuard::setLogPathApp()
+{
+    logDirApp = QDir::currentPath() + LOGDIR;   // Thư mục lưu log
+    QDir().mkpath(logDirApp);                            // Tạo thư mục nếu chưa có
+    logPath_EventGuard = logDirApp + lOGNAMEFILE;     // Đường dẫn file log
 }
 
 //function write log
-void EventGuard::writeLog(const QString &message)
+void EventGuard::writeLog(const QString &level, const QString &category, const QString &message)
 {
-    QString time = QDateTime::currentDateTime().toString("HH:mm:ss");
-    QString fullMsg = QString("[%1] %2").arg(time, message);
+    //QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd'T'HH:mm:ss.zzz");
+    //QString time = QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
+    QString time = QDateTime::currentDateTime()
+                       .toTimeZone(QTimeZone::systemTimeZone())
+                       .toString(Qt::ISODateWithMs);
 
+    QString fullMsg = QString("[%1] [%2] [%3] - %4").arg(time, level, category, message);
+
+    //write to listWiew
     listLog.append(fullMsg);
     modelLog->setStringList(listLog);
     ui->listView_logSystem->setModel(modelLog);
     ui->listView_logSystem->setEditTriggers(QAbstractItemView::NoEditTriggers);     // Không cho sửa
+
+    //write to file: /log/EventGuard.log
+    //qDebug() << logPathApp;
+
+    QFile file(logPath_EventGuard);
+    if (file.open(QIODevice::Append | QIODevice::Text))
+    {
+        QTextStream out(&file);
+        out << fullMsg << "\n";
+        file.close();
+    }
+
 }
+
 
 //function question exit app
 void EventGuard::exit_app()

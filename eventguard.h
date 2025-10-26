@@ -3,6 +3,9 @@
 
 
 #define VERSION 1.01
+#define LOGDIR "/logs"
+#define lOGNAMEFILE "/EventGuard.log"
+
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
@@ -11,6 +14,10 @@
 #include <QModelIndex>
 #include <QDesktopServices>
 #include <QApplication>
+#include <QIcon>
+#include <QStandardItem>
+#include <QDir>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,9 +43,17 @@ private:
     QStringListModel *modelLog;
     QStringList listLog;
 
+    QString logDirApp;
+    //QString logPathApp;
+    QString logPath_EventGuard;
+    void setLogPathApp();
+
+    //void setTabWidget_system();
+
+
 private slots:
     void connect_slot();
-    void writeLog(const QString &);
+    void writeLog(const QString &,const QString &,const QString &);
 
     void connectLink(QString);
 
