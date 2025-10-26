@@ -1,21 +1,27 @@
 #include "eventguard.h"
 #include "./ui_eventguard.h"
 
+
 EventGuard::EventGuard(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::EventGuard)
 {
     ui->setupUi(this);
     connect_slot();
-    modelLog = new QStringListModel(this);
+    modelViewLog = new QStringListModel(this);
 
-    //Call function setLogPathApp
-    setLogPathApp();
+    //setLogPathApp();
+    writeLogFile = new WriteLog("EventGuard");
+
 
 
     connectLink("https://github.com/BHNamSSD/EventGuard");
-    //ui->listView_logSystem->setModel(logModel);
-    writeLog("Info","System","Ứng dụng khởi động thành công.");
+    connectLinkOpenWDF();
+
+    writeLogFile->writeLog("Info","System","The application started successfully.");
+    pushViewLog(writeLogFile->getFullMessLog());
+
+    qDebug() << writeLogFile->getFullMessLog();
     this->setWindowTitle(setVersion(VERSION));
 }
 
@@ -37,10 +43,47 @@ void EventGuard::connectLink(QString linkIn)
     ui->label_bhnamssd->setTextFormat(Qt::RichText);
     ui->label_bhnamssd->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->label_bhnamssd->setOpenExternalLinks(false); // tắt tự mở
-    connect(ui->label_bhnamssd, &QLabel::linkActivated, this, [](const QString &link){
+    connect(ui->label_bhnamssd, &QLabel::linkActivated, this, [this](const QString &link){
         QDesktopServices::openUrl(QUrl(link));
+        //writeLogFile->writeLog("Info","System","Click link BHNamSSD");
+        //pushViewLog(writeLogFile->getFullMessLog());
     });
+
 }
+
+void EventGuard::connectLinkOpenWDF()
+{
+    QString linkOpenWDF = "<a href=\"#\">Open WDF</a>";
+
+    ui->label_openWDF->setText(linkOpenWDF);
+    ui->label_openWDF->setTextFormat(Qt::RichText);
+    ui->label_openWDF->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->label_openWDF->setOpenExternalLinks(false);
+    ui->label_openWDF->setCursor(Qt::PointingHandCursor);
+
+    // Khi user click link -> run: mmc wf.msc
+    connect(ui->label_openWDF, &QLabel::linkActivated, this, [this](const QString &)
+    {
+        writeLogFile->writeLog("Info","System","Open Windows Defender Firewall (Advanced Security)");
+        pushViewLog(writeLogFile->getFullMessLog());
+#ifdef Q_OS_WIN
+        // Thử mở bằng đường dẫn tuyệt đối
+        QString cmd = "C:\\Windows\\System32\\mmc.exe";
+        QStringList args;
+        args << "wf.msc";
+
+        bool ok = QProcess::startDetached(cmd, args);
+        if (!ok)
+            qDebug() << "Cant run mmc wf.msc";
+#else
+        qDebug() << "Chức năng này chỉ hỗ trợ trên Windows.";
+#endif
+    });
+    // writeLogFile->writeLog("Info","System","Run mmc wf.msc");
+    // pushViewLog(writeLogFile->getFullMessLog());
+}
+
+
 
 //connect slot
 void EventGuard::connect_slot()
@@ -59,44 +102,18 @@ QString EventGuard::setVersion(double version)
 //function restart
 void EventGuard::restart()
 {
-    writeLog("Info","App","Call restart");
+    //writeLog("Info","App","Call restart");
+    writeLogFile->writeLog("Info","App","Call restart");
+    pushViewLog(writeLogFile->getFullMessLog());
 }
 
-void EventGuard::setLogPathApp()
+void EventGuard::pushViewLog(QString messLog)
 {
-    logDirApp = QDir::currentPath() + LOGDIR;   // Thư mục lưu log
-    QDir().mkpath(logDirApp);                            // Tạo thư mục nếu chưa có
-    logPath_EventGuard = logDirApp + lOGNAMEFILE;     // Đường dẫn file log
-}
-
-//function write log
-void EventGuard::writeLog(const QString &level, const QString &category, const QString &message)
-{
-    //QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd'T'HH:mm:ss.zzz");
-    //QString time = QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
-    QString time = QDateTime::currentDateTime()
-                       .toTimeZone(QTimeZone::systemTimeZone())
-                       .toString(Qt::ISODateWithMs);
-
-    QString fullMsg = QString("[%1] [%2] [%3] - %4").arg(time, level, category, message);
-
     //write to listWiew
-    listLog.append(fullMsg);
-    modelLog->setStringList(listLog);
-    ui->listView_logSystem->setModel(modelLog);
+    listViewLog.append(messLog);
+    modelViewLog->setStringList(listViewLog);
+    ui->listView_logSystem->setModel(modelViewLog);
     ui->listView_logSystem->setEditTriggers(QAbstractItemView::NoEditTriggers);     // Không cho sửa
-
-    //write to file: /log/EventGuard.log
-    //qDebug() << logPathApp;
-
-    QFile file(logPath_EventGuard);
-    if (file.open(QIODevice::Append | QIODevice::Text))
-    {
-        QTextStream out(&file);
-        out << fullMsg << "\n";
-        file.close();
-    }
-
 }
 
 
@@ -106,6 +123,7 @@ void EventGuard::exit_app()
     int choose = QMessageBox::question(this,"Exit","Do you want to exit the application?");
     if(choose == QMessageBox::Yes)
     {
+        writeLogFile->writeLog("Info","System","The application stoped.");
         qApp->exit(1);
     }
     else if(choose == QMessageBox::No)

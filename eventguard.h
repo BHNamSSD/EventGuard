@@ -17,7 +17,11 @@
 #include <QIcon>
 #include <QStandardItem>
 #include <QDir>
+#include <QProcess>
 
+
+#include "firewallmanager.h"
+#include "writelog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -40,22 +44,24 @@ private:
     Ui::EventGuard *ui;
     QString setVersion(double);
 
-    QStringListModel *modelLog;
-    QStringList listLog;
 
-    QString logDirApp;
-    //QString logPathApp;
-    QString logPath_EventGuard;
-    void setLogPathApp();
+    //View log App object
+    QStringListModel *modelViewLog;
+    QStringList listViewLog;
 
-    //void setTabWidget_system();
 
+
+    FirewallManager fw_system;
+    WriteLog *writeLogFile;
 
 private slots:
     void connect_slot();
-    void writeLog(const QString &,const QString &,const QString &);
+
+    void pushViewLog(QString);
 
     void connectLink(QString);
+
+    void connectLinkOpenWDF();
 
     void restart();
 
