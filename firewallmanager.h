@@ -13,6 +13,16 @@ public:
     ~FirewallManager();
 
     bool blockIP(const QString &ip, const QString &ruleName);
+    bool blockIPPort(const QString &ip,
+                     const QString &ruleName,
+                     const QString &protocol,
+                     const QString &port);
+
+    bool blockIPPort(const QString &ip,
+                     const QString &ruleName,
+                     const QString &protocol,
+                     const QString &port,
+                     const QString &directio);
     bool unblockRule(const QString &ruleName);
     QList<QPair<QString, QString>> listBlockedIPs();
 

@@ -3,8 +3,13 @@
 
 
 #define VERSION 1.01
-#define LOGDIR "/logs"
-#define lOGNAMEFILE "/EventGuard.log"
+
+#define TCP "TCP"
+#define UDP "UDP"
+#define ANY "ANY"
+#define MAXPORT 65535
+#define IN "IN"
+#define OUT "OUT"
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -22,6 +27,7 @@
 
 #include "firewallmanager.h"
 #include "writelog.h"
+#include "rule.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,9 +56,9 @@ private:
     QStringList listViewLog;
 
 
-
-    FirewallManager fw_system;
+    FirewallManager *fw_system;
     WriteLog *writeLogFile;
+    Rule *rule;
 
 private slots:
     void connect_slot();
@@ -60,6 +66,34 @@ private slots:
     void pushViewLog(QString);
 
     void connectLink(QString);
+
+
+    //=====================================
+    // Rule
+
+    void setGroupBox_rule();
+
+
+    bool checkIPRule();
+
+    void changePortRule(Qt::CheckState);
+    void onCheckBoxAnyPort();
+    void offCheckBoxAnyPort();
+
+    QString getTCPorUDP();
+    QString getInOutRule();
+
+    bool funcCheckNameAndInOrOUT();
+
+    bool checkNameRule();
+    bool checkRulePort();
+    bool checkBoxPort();
+
+    void clickAddRule();
+
+    void addRuleBlockIP();
+
+    //=====================================
 
     void connectLinkOpenWDF();
 

@@ -110,17 +110,17 @@
      <attribute name="title">
       <string>Test</string>
      </attribute>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="groupBox_rule">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>0</y>
         <width>255</width>
-        <height>200</height>
+        <height>210</height>
        </rect>
       </property>
       <property name="title">
-       <string>Rule</string>
+       <string>Rule Block</string>
       </property>
       <widget class="QLabel" name="label_ruleHost">
        <property name="geometry">
@@ -132,10 +132,10 @@
         </rect>
        </property>
        <property name="text">
-        <string>Host</string>
+        <string>IPv4</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_ruleHost">
+      <widget class="QLineEdit" name="lineEdit_ruleIP">
        <property name="geometry">
         <rect>
          <x>60</x>
@@ -163,16 +163,19 @@
         <rect>
          <x>60</x>
          <y>60</y>
-         <width>60</width>
+         <width>50</width>
          <height>20</height>
         </rect>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
       <widget class="QLabel" name="label_ruleName">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>90</y>
+         <y>120</y>
          <width>50</width>
          <height>20</height>
         </rect>
@@ -181,42 +184,23 @@
         <string>Name</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_ruleNam">
+      <widget class="QLineEdit" name="lineEdit_ruleName">
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>90</y>
+         <y>120</y>
          <width>190</width>
          <height>20</height>
         </rect>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="checkBox_ruleAnyPort">
-       <property name="geometry">
-        <rect>
-         <x>130</x>
-         <y>60</y>
-         <width>70</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Any Port</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <property name="tristate">
-        <bool>false</bool>
        </property>
       </widget>
       <widget class="QPushButton" name="pushButton_ruleAdd">
        <property name="geometry">
         <rect>
          <x>160</x>
-         <y>160</y>
+         <y>180</y>
          <width>80</width>
-         <height>30</height>
+         <height>25</height>
         </rect>
        </property>
        <property name="text">
@@ -227,9 +211,9 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>120</y>
+         <y>145</y>
          <width>90</width>
-         <height>21</height>
+         <height>20</height>
         </rect>
        </property>
        <property name="text">
@@ -242,10 +226,10 @@
       <widget class="QRadioButton" name="radioButton_ruleOutbound">
        <property name="geometry">
         <rect>
-         <x>160</x>
-         <y>120</y>
+         <x>150</x>
+         <y>145</y>
          <width>90</width>
-         <height>21</height>
+         <height>20</height>
         </rect>
        </property>
        <property name="text">
@@ -256,13 +240,61 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>165</y>
+         <y>180</y>
          <width>80</width>
-         <height>20</height>
+         <height>30</height>
         </rect>
        </property>
        <property name="text">
         <string> Open WDF</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>60</y>
+         <width>111</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QRadioButton" name="radioButton_TCP">
+          <property name="text">
+           <string>TCP</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_UDP">
+          <property name="text">
+           <string>UDP</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_ruleAnyPort">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>90</y>
+         <width>70</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Any Port</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
        </property>
       </widget>
      </widget>

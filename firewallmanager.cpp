@@ -7,6 +7,9 @@
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 
+#ifndef NET_FW_IP_PROTOCOL_ANY
+#define NET_FW_IP_PROTOCOL_ANY 256
+#endif
 
 
 
@@ -97,6 +100,146 @@ bool FirewallManager::blockIP(const QString &ip, const QString &ruleName) {
         qDebug() << "Failed to add rule";
         mess = "Failed to add rule";
         writeLogFirewall->writeLog("Error","Firewall",mess);
+        return false;
+    }
+}
+
+bool FirewallManager::blockIPPort(const QString &ip,
+                                  const QString &ruleName,
+                                  const QString &protocol,
+                                  const QString &port)
+{
+    if (!pPolicy2) return false;
+
+    INetFwRule *pRule = nullptr;
+    HRESULT hr = CoCreateInstance(
+        __uuidof(NetFwRule),
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        __uuidof(INetFwRule),
+        (void**)&pRule);
+
+    if (FAILED(hr)) {
+        qDebug() << "Failed to create INetFwRule";
+        writeLogFirewall->writeLog("Error","Firewall","Failed to create INetFwRule");
+        return false;
+    }
+
+    // Thiết lập thông tin cơ bản
+    pRule->put_Name(_bstr_t(ruleName.toStdWString().c_str()));
+    pRule->put_Description(_bstr_t(L"Rule created by Qt FirewallManager"));
+    pRule->put_Direction(NET_FW_RULE_DIR_IN);  // inbound
+    pRule->put_Action(NET_FW_ACTION_BLOCK);
+    pRule->put_Enabled(VARIANT_TRUE);
+    pRule->put_RemoteAddresses(_bstr_t(ip.toStdWString().c_str()));
+
+    // Xác định giao thức (protocol)
+    long protoValue = NET_FW_IP_PROTOCOL_TCP;
+    if (protocol.compare("UDP", Qt::CaseInsensitive) == 0)
+        protoValue = NET_FW_IP_PROTOCOL_UDP;
+    else if (protocol.compare("ANY", Qt::CaseInsensitive) == 0)
+        protoValue = NET_FW_IP_PROTOCOL_ANY;
+
+    pRule->put_Protocol(protoValue);
+
+    // Nếu có chỉ định port
+    if (!port.isEmpty())
+        pRule->put_LocalPorts(_bstr_t(port.toStdWString().c_str()));
+
+    // Thêm rule vào firewall
+    INetFwRules *rules = nullptr;
+    hr = ((INetFwPolicy2*)pPolicy2)->get_Rules(&rules);
+    if (SUCCEEDED(hr)) {
+        hr = rules->Add(pRule);
+        rules->Release();
+    }
+
+    pRule->Release();
+
+    QString mess;
+    if (SUCCEEDED(hr)) {
+        mess = QString("Blocked IP: %1 Port: %2 Protocol: %3").arg(ip, port, protocol);
+        qDebug() << mess;
+        writeLogFirewall->writeLog("Info","Firewall",mess);
+        return true;
+    } else {
+        mess = "Failed to add rule";
+        qDebug() << mess;
+        writeLogFirewall->writeLog("Error","Firewall",mess);
+        return false;
+    }
+}
+
+bool FirewallManager::blockIPPort(const QString &ip,
+                                  const QString &ruleName,
+                                  const QString &protocol,
+                                  const QString &port,
+                                  const QString &direction)
+{
+    if (!pPolicy2) return false;
+
+    INetFwRule *pRule = nullptr;
+    HRESULT hr = CoCreateInstance(
+        __uuidof(NetFwRule),
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        __uuidof(INetFwRule),
+        (void**)&pRule);
+
+    if (FAILED(hr)) {
+        qDebug() << "Failed to create INetFwRule";
+        writeLogFirewall->writeLog("Error", "Firewall", "Failed to create INetFwRule");
+        return false;
+    }
+
+    // === Thiết lập thông tin cơ bản ===
+    pRule->put_Name(_bstr_t(ruleName.toStdWString().c_str()));
+    pRule->put_Description(_bstr_t(L"Rule created by Qt FirewallManager"));
+    pRule->put_Action(NET_FW_ACTION_BLOCK);
+    pRule->put_Enabled(VARIANT_TRUE);
+    pRule->put_RemoteAddresses(_bstr_t(ip.toStdWString().c_str()));
+
+    // === Thiết lập hướng (direction) ===
+    NET_FW_RULE_DIRECTION dir = NET_FW_RULE_DIR_IN; // mặc định inbound
+    if (direction.compare("OUT", Qt::CaseInsensitive) == 0)
+        dir = NET_FW_RULE_DIR_OUT;
+
+    pRule->put_Direction(dir);
+
+    // === Giao thức (protocol) ===
+    long protoValue = NET_FW_IP_PROTOCOL_TCP;
+    if (protocol.compare("UDP", Qt::CaseInsensitive) == 0)
+        protoValue = NET_FW_IP_PROTOCOL_UDP;
+    else if (protocol.compare("ANY", Qt::CaseInsensitive) == 0)
+        protoValue = NET_FW_IP_PROTOCOL_ANY;
+
+    pRule->put_Protocol(protoValue);
+
+    // === Cổng (port) nếu có ===
+    if (!port.isEmpty())
+        pRule->put_LocalPorts(_bstr_t(port.toStdWString().c_str()));
+
+    // === Thêm rule vào firewall ===
+    INetFwRules *rules = nullptr;
+    hr = ((INetFwPolicy2*)pPolicy2)->get_Rules(&rules);
+    if (SUCCEEDED(hr)) {
+        hr = rules->Add(pRule);
+        rules->Release();
+    }
+
+    pRule->Release();
+
+    QString mess;
+    if (SUCCEEDED(hr)) {
+        mess = QString("Blocked %1 IP: %2 Port: %3 Protocol: %4")
+        .arg(direction, ip, port, protocol);
+        qDebug() << mess;
+        writeLogFirewall->writeLog("Info", "Firewall", mess);
+        return true;
+    } else {
+        mess = "Failed to add rule";
+        qDebug() << mess;
+        writeLogFirewall->writeLog("Error", "Firewall", mess);
         return false;
     }
 }

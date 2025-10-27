@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Network)
+
 
 set(PROJECT_SOURCES
         main.cpp
@@ -19,6 +21,8 @@ set(PROJECT_SOURCES
         eventguard.ui
 )
 
+
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(EventGuard
         MANUAL_FINALIZATION
@@ -26,6 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ico.qrc
         firewallmanager.h firewallmanager.cpp
         writelog.h writelog.cpp
+        ip.h ip.cpp
+        rule.h rule.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET EventGuard APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -59,6 +65,13 @@ set_target_properties(EventGuard PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+)
+
+# Link Qt libraries
+target_link_libraries(EventGuard
+    PRIVATE
+        Qt6::Core
+        Qt6::Network
 )
 
 include(GNUInstallDirs)

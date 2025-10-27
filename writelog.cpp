@@ -26,7 +26,9 @@ void WriteLog::writeLog(const QString &level, const QString &category, const QSt
 
 QString WriteLog::getFullMessLog()
 {
-    return fullMessLog;
+    QString mess = fullMessLog;
+    fullMessLog.clear();
+    return mess;
 }
 
 
