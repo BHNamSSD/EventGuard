@@ -32,6 +32,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         writelog.h writelog.cpp
         ip.h ip.cpp
         rule.h rule.cpp
+
+        formrulesdialog.h formrulesdialog.cpp formrulesdialog.ui
+        dataDefinition.h
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET EventGuard APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <netfw.h>
 #include <comutil.h>
+#include "dataDefinition.h"
 
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
@@ -121,7 +122,7 @@ bool FirewallManager::blockIPPort(const QString &ip,
 
     if (FAILED(hr)) {
         qDebug() << "Failed to create INetFwRule";
-        writeLogFirewall->writeLog("Error","Firewall","Failed to create INetFwRule");
+        writeLogFirewall->writeLog(writeLogFirewall->levelCRITICAL(),"Firewall","Failed to create INetFwRule");
         return false;
     }
 
@@ -135,9 +136,9 @@ bool FirewallManager::blockIPPort(const QString &ip,
 
     // Xác định giao thức (protocol)
     long protoValue = NET_FW_IP_PROTOCOL_TCP;
-    if (protocol.compare("UDP", Qt::CaseInsensitive) == 0)
+    if (protocol.compare(TEXTUDP, Qt::CaseInsensitive) == 0)
         protoValue = NET_FW_IP_PROTOCOL_UDP;
-    else if (protocol.compare("ANY", Qt::CaseInsensitive) == 0)
+    else if (protocol.compare(TEXTANY, Qt::CaseInsensitive) == 0)
         protoValue = NET_FW_IP_PROTOCOL_ANY;
 
     pRule->put_Protocol(protoValue);
@@ -160,12 +161,12 @@ bool FirewallManager::blockIPPort(const QString &ip,
     if (SUCCEEDED(hr)) {
         mess = QString("Blocked IP: %1 Port: %2 Protocol: %3").arg(ip, port, protocol);
         qDebug() << mess;
-        writeLogFirewall->writeLog("Info","Firewall",mess);
+        writeLogFirewall->writeLog(writeLogFirewall->levelINFO(),"Firewall",mess);
         return true;
     } else {
         mess = "Failed to add rule";
         qDebug() << mess;
-        writeLogFirewall->writeLog("Error","Firewall",mess);
+        writeLogFirewall->writeLog(writeLogFirewall->levelERROR(),"Firewall",mess);
         return false;
     }
 }
@@ -188,12 +189,14 @@ bool FirewallManager::blockIPPort(const QString &ip,
 
     if (FAILED(hr)) {
         qDebug() << "Failed to create INetFwRule";
-        writeLogFirewall->writeLog("Error", "Firewall", "Failed to create INetFwRule");
+        writeLogFirewall->writeLog(writeLogFirewall->levelCRITICAL(), "Firewall", "Failed to create INetFwRule");
         return false;
     }
 
     // === Thiết lập thông tin cơ bản ===
-    pRule->put_Name(_bstr_t(ruleName.toStdWString().c_str()));
+    QString fullRuleName = appPrefix + ruleName; //add prefix
+
+    pRule->put_Name(_bstr_t(fullRuleName.toStdWString().c_str()));
     pRule->put_Description(_bstr_t(L"Rule created by Qt FirewallManager"));
     pRule->put_Action(NET_FW_ACTION_BLOCK);
     pRule->put_Enabled(VARIANT_TRUE);
@@ -201,22 +204,22 @@ bool FirewallManager::blockIPPort(const QString &ip,
 
     // === Thiết lập hướng (direction) ===
     NET_FW_RULE_DIRECTION dir = NET_FW_RULE_DIR_IN; // mặc định inbound
-    if (direction.compare("OUT", Qt::CaseInsensitive) == 0)
+    if (direction.compare(TEXTOUT, Qt::CaseInsensitive) == 0)
         dir = NET_FW_RULE_DIR_OUT;
 
     pRule->put_Direction(dir);
 
     // === Giao thức (protocol) ===
     long protoValue = NET_FW_IP_PROTOCOL_TCP;
-    if (protocol.compare("UDP", Qt::CaseInsensitive) == 0)
+    if (protocol.compare(TEXTUDP, Qt::CaseInsensitive) == 0)
         protoValue = NET_FW_IP_PROTOCOL_UDP;
-    else if (protocol.compare("ANY", Qt::CaseInsensitive) == 0)
+    else if (protocol.compare(TEXTANY, Qt::CaseInsensitive) == 0)
         protoValue = NET_FW_IP_PROTOCOL_ANY;
 
     pRule->put_Protocol(protoValue);
 
     // === Cổng (port) nếu có ===
-    if (!port.isEmpty())
+    if (!port.isEmpty() && port.compare(TEXTNULL,Qt::CaseInsensitive) != 0)
         pRule->put_LocalPorts(_bstr_t(port.toStdWString().c_str()));
 
     // === Thêm rule vào firewall ===
@@ -234,12 +237,12 @@ bool FirewallManager::blockIPPort(const QString &ip,
         mess = QString("Blocked %1 IP: %2 Port: %3 Protocol: %4")
         .arg(direction, ip, port, protocol);
         qDebug() << mess;
-        writeLogFirewall->writeLog("Info", "Firewall", mess);
+        writeLogFirewall->writeLog(writeLogFirewall->levelINFO(), "Firewall", mess);
         return true;
     } else {
         mess = "Failed to add rule";
         qDebug() << mess;
-        writeLogFirewall->writeLog("Error", "Firewall", mess);
+        writeLogFirewall->writeLog(writeLogFirewall->levelERROR(), "Firewall", mess);
         return false;
     }
 }
@@ -256,13 +259,13 @@ bool FirewallManager::unblockRule(const QString &ruleName) {
     rules->Release();
     QString mess;
     if (SUCCEEDED(hr)) {
-        qDebug() << "Removed rule:" << ruleName;
-        mess = "Removed rule:" + ruleName;
+        qDebug() << "Removed rule: " << ruleName;
+        mess = "Removed rule: " + ruleName;
         writeLogFirewall->writeLog("Info","Firewall",mess);
         return true;
     } else {
-        qDebug() << "Failed to remove rule";
-        mess = "Failed to remove rule";
+        qDebug() << "Failed to remove rule " << ruleName;
+        mess = "Failed to remove rule " + ruleName;
         writeLogFirewall->writeLog("Error","Firewall",mess);
         return false;
     }
@@ -342,6 +345,10 @@ QList<QPair<QString, QString>> FirewallManager::listBlockedIPs() {
 }
 
 
+void FirewallManager::loadCurrentRule()
+{
+
+}
 
 
 

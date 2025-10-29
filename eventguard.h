@@ -2,14 +2,6 @@
 #define EVENTGUARD_H
 
 
-#define VERSION 1.01
-
-#define TCP "TCP"
-#define UDP "UDP"
-#define ANY "ANY"
-#define MAXPORT 65535
-#define IN "IN"
-#define OUT "OUT"
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -28,6 +20,9 @@
 #include "firewallmanager.h"
 #include "writelog.h"
 #include "rule.h"
+
+#include <Userenv.h>
+#include "formrulesdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,6 +45,7 @@ private:
     Ui::EventGuard *ui;
     QString setVersion(double);
 
+    bool isRunningAsAdmin();
 
     //View log App object
     QStringListModel *modelViewLog;
@@ -70,9 +66,11 @@ private slots:
 
     //=====================================
     // Rule
+    void showFormAddRule();
+    bool checkAddRule();
 
-    void setGroupBox_rule();
-
+    void setGroupBox_ruleBlock();
+    void clearGroupBox_ruleBlock();
 
     bool checkIPRule();
 

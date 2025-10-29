@@ -1,24 +1,25 @@
 #include "eventguard.h"
 #include "./ui_eventguard.h"
 #include "ip.h"
-
+#include "dataDefinition.h"
 
 EventGuard::EventGuard(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::EventGuard)
 {
     ui->setupUi(this);
-    connect_slot();
+
     modelViewLog = new QStringListModel(this);
 
     //setLogPathApp();
     writeLogFile = new WriteLog("EventGuard");
 
     //set Group Box Rule
-    setGroupBox_rule();
+    setGroupBox_ruleBlock();
 
     //create rule
     rule = new Rule();
+
     //create firewall
     fw_system = new FirewallManager();
 
@@ -27,12 +28,14 @@ EventGuard::EventGuard(QWidget *parent)
 
     writeLogFile->writeLog(writeLogFile->levelINFO(),"System","The application started successfully.");
     pushViewLog(writeLogFile->getFullMessLog());
+
+    connect_slot();
     this->setWindowTitle(setVersion(VERSION));
 }
 
 //=====================================
 //from Rule
-void EventGuard::setGroupBox_rule()
+void EventGuard::setGroupBox_ruleBlock()
 {
     ui->lineEdit_ruleIP->setMaxLength(16);
     QRegularExpression rxRuleIP("^[0-9.]*$");
@@ -150,7 +153,7 @@ bool EventGuard::checkBoxPort()
     if(ui->checkBox_ruleAnyPort->isChecked())
     {
         //protocol ANY
-        qDebug() << "Checkbox clicked " ANY;
+        qDebug() << "Checkbox clicked " TEXTANY;
         return true;
     }
     else
@@ -164,17 +167,15 @@ QString EventGuard::getTCPorUDP()
     if(ui->radioButton_TCP->isChecked())
     {
         //TCP
-        return TCP;
+        return TEXTTCP;
     }
     if(ui->radioButton_UDP->isChecked())
     {
         //UDP
-        return UDP;
+        return TEXTUDP;
     }
-    return NULL;
+    return TEXTNULL;
 }
-
-
 
 bool EventGuard::checkNameRule()
 {
@@ -197,14 +198,14 @@ QString EventGuard::getInOutRule()
     if(ui->radioButton_ruleInbound->isChecked())
     {
         //IN
-        return IN;
+        return TEXTIN;
     }
     if(ui->radioButton_ruleOutbound->isChecked())
     {
         //OUT
-        return OUT;
+        return TEXTOUT;
     }
-    return NULL;
+    return TEXTNULL;
 }
 
 bool EventGuard::funcCheckNameAndInOrOUT()
@@ -213,7 +214,7 @@ bool EventGuard::funcCheckNameAndInOrOUT()
     {
         rule->setRuleName(ui->lineEdit_ruleName->text());
 
-        if(getInOutRule() != "NULL")
+        if(getInOutRule() != TEXTNULL)
         {
             rule->setRuleInOut(getInOutRule());
             return true;
@@ -253,61 +254,121 @@ void EventGuard::addRuleBlockIP()
 
 }
 
+void EventGuard::clearGroupBox_ruleBlock()
+{
+    ui->lineEdit_ruleIP->clear();
+    ui->lineEdit_rulePort->clear();
+    ui->lineEdit_ruleName->clear();
+    QString mess;
+    mess = "Clear data input in group box rule";
+    writeLogFile->writeLog(writeLogFile->levelINFO(),"System",mess);
+    pushViewLog(writeLogFile->getFullMessLog());
+}
+
+void EventGuard::showFormAddRule()
+{
+    auto *formRule = new FormRulesDialog();
+    formRule->setRuleData(rule);
+    //giai phong con tro Rule
+    formRule->setAttribute(Qt::WA_DeleteOnClose);
+    int result = formRule->exec();
+    if (result == QDialog::Accepted) {
+        qDebug() << "User choose YES or OK";
+    } else if (result == QDialog::Rejected) {
+        qDebug() << "User choose NO or close dialog";
+    }
+}
+
+bool EventGuard::checkAddRule()
+{
+    auto *formRule = new FormRulesDialog();
+    formRule->setRuleData(rule);
+    //giai phong con tro Rule
+    formRule->setAttribute(Qt::WA_DeleteOnClose);
+    int result = formRule->exec();
+    if (result == QDialog::Accepted) {
+        qDebug() << "User choose YES or OK";
+        return true;
+    } else if (result == QDialog::Rejected) {
+        qDebug() << "User choose NO or close dialog";
+    }
+    return false;
+}
+
 void EventGuard::clickAddRule()
 {
-    //qDebug() << ui->lineEdit_ruleIP->text();
-    if(checkIPRule())
+    if (!isRunningAsAdmin()) {
+        //QMessageBox::warning(nullptr, "Quyền hạn",
+        //                     "Ứng dụng cần chạy với quyền Administrator để thực hiện thao tác này.");
+        QMessageBox::warning(this, "Decentralization policy",
+                            "The application needs to run with Administrator rights to perform this operation.");
+
+        writeLogFile->writeLog(writeLogFile->levelERROR(),"System","Current powers are not allowed to set rules");
+        pushViewLog(writeLogFile->getFullMessLog());
+    }
+    else
     {
-        rule->setRuleIP(ui->lineEdit_ruleIP->text());
-        if(checkBoxPort())
+        //qDebug() << ui->lineEdit_ruleIP->text();
+        if(checkIPRule())
         {
-            qDebug() << "INFO: Add rule: Protocol: " ANY;
-            rule->setRulePort(NULL);
-            rule->setRuleTCPorUDP(ANY);
-
-            if(funcCheckNameAndInOrOUT())
+            rule->setRuleIP(ui->lineEdit_ruleIP->text());
+            if(checkBoxPort())
             {
-                rule->test_getVailRuleCurrent();
-                addRuleBlockIP();
-            }
-        }
-        else
-        {
-            qDebug() << "Port number and TCP or UDP";
-            if(checkRulePort())
-            {
-                rule->setRulePort(ui->lineEdit_rulePort->text());
-                if(getTCPorUDP() != "NULL")
-                {
-                    rule->setRuleTCPorUDP(getTCPorUDP());
-                }
-                else
-                {
-                    qDebug() << "ERROR: Add rule: TCP/UDP check fail";
-                }
-
+                qDebug() << "INFO: Add rule: Protocol: " TEXTANY;
+                rule->setRulePort(TEXTNULL);
+                rule->setRuleTCPorUDP(TEXTANY);
 
                 if(funcCheckNameAndInOrOUT())
                 {
-                    rule->test_getVailRuleCurrent();
-                    addRuleBlockIP();
+                    //rule->test_getVailRuleCurrent();
+                    //showFormAddRule();
+                    if(checkAddRule())
+                    {
+                        addRuleBlockIP();
+                        clearGroupBox_ruleBlock();
+                    }
                 }
             }
             else
             {
-                ui->lineEdit_rulePort->clear();
-                qDebug() << "ERROR: Add rule: Port check fail";
+                qDebug() << "Port number and TCP or UDP";
+                if(checkRulePort())
+                {
+                    rule->setRulePort(ui->lineEdit_rulePort->text());
+                    if(getTCPorUDP() != "NULL")
+                    {
+                        rule->setRuleTCPorUDP(getTCPorUDP());
+                    }
+                    else
+                    {
+                        qDebug() << "ERROR: Add rule: TCP/UDP check fail";
+                    }
+
+
+                    if(funcCheckNameAndInOrOUT())
+                    {
+                        //rule->test_getVailRuleCurrent();
+                        //showFormAddRule();
+                        if(checkAddRule())
+                        {
+                            addRuleBlockIP();
+                            clearGroupBox_ruleBlock();
+                        }
+                    }
+                }
+                else
+                {
+                    ui->lineEdit_rulePort->clear();
+                    qDebug() << "ERROR: Add rule: Port check fail";
+                }
             }
         }
+        else
+        {
+            ui->lineEdit_ruleIP->clear();
+            qDebug() << "ERROR: Add rule: IP check fail";
+        }
     }
-    else
-    {
-        ui->lineEdit_ruleIP->clear();
-        qDebug() << "ERROR: Add rule: IP check fail";
-    }
-
-
-
     //clear
     //ui->lineEdit_ruleIP->clear();
 
@@ -375,8 +436,10 @@ void EventGuard::connect_slot()
 {
     connect(ui->pushButton_exitApp,SIGNAL(clicked(bool)),this,SLOT(exit_app()));
     connect(ui->pushButton_restart,SIGNAL(clicked(bool)),this,SLOT(restart()));
+
     connect(ui->pushButton_ruleAdd,SIGNAL(clicked(bool)),this, SLOT(clickAddRule()));
 
+    //connect(ui->pushButton_ruleAdd,SIGNAL(clicked(bool)),this, SLOT(checkAddRule()));
     //check status (any port)
     connect(ui->checkBox_ruleAnyPort, &QCheckBox::checkStateChanged, this, &EventGuard::changePortRule);
 
@@ -395,7 +458,7 @@ QString EventGuard::setVersion(double version)
 void EventGuard::restart()
 {
     //writeLog("Info","App","Call restart");
-    writeLogFile->writeLog("Info","App","Call restart");
+    writeLogFile->writeLog(writeLogFile->levelINFO(),"App","Call restart");
     pushViewLog(writeLogFile->getFullMessLog());
 }
 
@@ -424,8 +487,27 @@ void EventGuard::exit_app()
     }
 }
 
+bool EventGuard::isRunningAsAdmin()
+{
+    BOOL isAdmin = FALSE;
+    PSID adminGroup = nullptr;
 
+    SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 
+    if (AllocateAndInitializeSid(
+            &NtAuthority,
+            2,
+            SECURITY_BUILTIN_DOMAIN_RID,
+            DOMAIN_ALIAS_RID_ADMINS,
+            0, 0, 0, 0, 0, 0,
+            &adminGroup))
+    {
+        CheckTokenMembership(nullptr, adminGroup, &isAdmin);
+        FreeSid(adminGroup);
+    }
+
+    return (isAdmin == TRUE);
+}
 
 
 

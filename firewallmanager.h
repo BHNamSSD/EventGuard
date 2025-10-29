@@ -26,6 +26,8 @@ public:
     bool unblockRule(const QString &ruleName);
     QList<QPair<QString, QString>> listBlockedIPs();
 
+    void loadCurrentRule();
+
 private:
     bool initialize();
     void cleanup();

@@ -100,7 +100,7 @@
       <string>Overview</string>
      </attribute>
     </widget>
-    <widget class="QWidget" name="test">
+    <widget class="QWidget" name="ruleSetting">
      <property name="contextMenuPolicy">
       <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
      </property>
@@ -108,9 +108,9 @@
       <set>Qt::InputMethodHint::ImhNone</set>
      </property>
      <attribute name="title">
-      <string>Test</string>
+      <string>Rules</string>
      </attribute>
-     <widget class="QGroupBox" name="groupBox_rule">
+     <widget class="QGroupBox" name="groupBox_ruleBlock">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -120,13 +120,13 @@
        </rect>
       </property>
       <property name="title">
-       <string>Rule Block</string>
+       <string>Block Rule</string>
       </property>
       <widget class="QLabel" name="label_ruleHost">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>30</y>
+         <y>20</y>
          <width>50</width>
          <height>20</height>
         </rect>
@@ -139,7 +139,7 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>30</y>
+         <y>20</y>
          <width>190</width>
          <height>20</height>
         </rect>
@@ -149,7 +149,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>50</y>
          <width>50</width>
          <height>20</height>
         </rect>
@@ -162,7 +162,7 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>60</y>
+         <y>50</y>
          <width>50</width>
          <height>20</height>
         </rect>
@@ -175,7 +175,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>120</y>
+         <y>110</y>
          <width>50</width>
          <height>20</height>
         </rect>
@@ -188,7 +188,7 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>120</y>
+         <y>110</y>
          <width>190</width>
          <height>20</height>
         </rect>
@@ -198,7 +198,7 @@
        <property name="geometry">
         <rect>
          <x>160</x>
-         <y>180</y>
+         <y>175</y>
          <width>80</width>
          <height>25</height>
         </rect>
@@ -211,7 +211,7 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>145</y>
+         <y>140</y>
          <width>90</width>
          <height>20</height>
         </rect>
@@ -227,7 +227,7 @@
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>145</y>
+         <y>140</y>
          <width>90</width>
          <height>20</height>
         </rect>
@@ -240,7 +240,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>180</y>
+         <y>175</y>
          <width>80</width>
          <height>30</height>
         </rect>
@@ -253,7 +253,7 @@
        <property name="geometry">
         <rect>
          <x>120</x>
-         <y>60</y>
+         <y>50</y>
          <width>111</width>
          <height>23</height>
         </rect>
@@ -282,7 +282,7 @@
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>90</y>
+         <y>80</y>
          <width>70</width>
          <height>20</height>
         </rect>
@@ -298,6 +298,57 @@
        </property>
       </widget>
      </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>0</y>
+        <width>270</width>
+        <height>240</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>View Current Block Rules </string>
+      </property>
+      <widget class="QListView" name="listView">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>20</y>
+         <width>260</width>
+         <height>180</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>205</y>
+         <width>85</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="email">
+     <attribute name="title">
+      <string>Email</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="service">
+     <attribute name="title">
+      <string>Service</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="about">
+     <attribute name="title">
+      <string>About</string>
+     </attribute>
     </widget>
    </widget>
    <widget class="QLabel" name="label_bhnamssd">
